@@ -22,7 +22,7 @@ These are installed by default on most Linux systems. Refer to your package mana
 
 ## Installation
 
-0) Clone the repository `COMMAND HERE`
+0) Clone the repository `git clone https://github.com/jrodal98/transfer.git && cd transfer`
 1) Install the dependencies listed above using your package manager. 
 2) Optionally, change the default password in the `transfer.sh` file (highly recommended)
 3) Add `$HOME/bin` to your path. If you use bash, then you would add `export PATH="$HOME/bin:$PATH"` to your `~/.bashrc`. If using zsh, add that line of code to your `~/.zshrc` file.
