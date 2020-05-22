@@ -6,11 +6,11 @@ PASSWORD="defaultpasswordhere" # default password for encryption and decryption
 command -v gpg >/dev/null 2>&1 || { echo "Install gnupg using your favorite package manager." >&2; exit 1; }
 command -v curl >/dev/null 2>&1 || { echo "Install curl using your favorite package manager." >&2; exit 1; }
 command -v tee >/dev/null 2>&1 || { echo "Install tee using your favorite package manager." >&2; exit 1; }
-
+command -v tar >/dev/null 2>&1 || { echo "Install tar using your favorite package manager." >&2; exit 1; }
 
 function usage ()
 {
-    echo "Usage :  $0 [options] [path to file or url]
+    echo "Usage :  $0 [options] [path to file, directory, or url]
 
     Options:
     -d|decrypt              Decrypt while downloading or decrypt file
@@ -64,16 +64,26 @@ do
             curl $1 -o $OUTFILE --progress-bar && echo $OUTFILE
         fi
     else
-        echo "File or invalid URL detected. Assuming $1 is a file..." >&2
+        echo "File or invalid URL detected. Assuming $1 is a file or directory..." >&2
         if [ $d ]; then
             echo "Attempting to decrypt $1..." >&2
             OUTFILE="$(dirname $1)/decrypted$(date +%s)_$(basename $1)"
             gpg --batch --passphrase $PASSWORD -o $OUTFILE -d $1 && echo "Decrypted $1 into $OUTFILE"
         elif [ $e ]; then
-            echo "encrypting and uploading $1..." >&2
-            gpg --batch --passphrase $PASSWORD --symmetric -o- $1 | curl -X PUT --upload-file "-" "https://transfer.sh/$(basename $1)" --progress-bar -w " $(date +%c)\n"| tee -a $HOME/.transfer_history
+            if [ -d "$1" ]; then
+                echo "archiving, compressing, encrypting, and uploading $1.tar.gz" >&2
+                tar -zcvO $1 | gpg --batch --passphrase $PASSWORD --symmetric -o- | curl -X PUT --upload-file "-" "https://transfer.sh/$(basename $1).tar.gz" --progress-bar -w " $(date +%c)\n"| tee -a $HOME/.transfer_history
+            else
+                echo "encrypting and uploading $1..." >&2
+                gpg --batch --passphrase $PASSWORD --symmetric -o- $1 | curl -X PUT --upload-file "-" "https://transfer.sh/$(basename $1)" --progress-bar -w " $(date +%c)\n"| tee -a $HOME/.transfer_history
+            fi
         else
-            echo "uploading $1 with no encryption..." >&2
-            curl --upload-file $1 "https://transfer.sh/$(basename $1)" --progress-bar -w " $(date +%c)\n"| tee -a $HOME/.transfer_gpg_history
+            if [ -d "$1" ]; then
+                echo "archiving, compressing, and uploading $1.tar.gz with NO ENCRYPTION..." >&2
+                tar -zcvO $1 | curl -X PUT --upload-file "-" "https://transfer.sh/$(basename $1).tar.gz" --progress-bar -w " $(date +%c)\n"| tee -a $HOME/.transfer_history
+            else
+                echo "uploading $1 with NO ENCRYPTION..." >&2
+                curl --upload-file $1 "https://transfer.sh/$(basename $1)" --progress-bar -w " $(date +%c)\n"| tee -a $HOME/.transfer_history
+            fi
         fi
     fi

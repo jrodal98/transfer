@@ -5,6 +5,7 @@ A bash script for uploading and downloading from <https://transfer.sh/>.
 ## Features
 
 * Upload files
+* Upload directories (archives them as they are being uploaded)
 * Download files
 * Encrypt files as they are being uploaded
 * Decrypt files as they are being downloaded
@@ -17,6 +18,7 @@ A bash script for uploading and downloading from <https://transfer.sh/>.
 * curl
 * gpg
 * tee
+* tar
 
 These are installed by default on most Linux systems. Refer to your package manager if you need to install them.
 
@@ -32,9 +34,9 @@ Alternatively, you can just call the `transfer.sh` script directly instead of do
 
 ## Examples
 
-* Upload a file: `transfer <FILE>`
-* Automatically encrypt a file using a default password while uploading: `transfer -e <FILE>`
-* Automatically encrypt a file using a provided password while uploading: `transfer -e -p <PASSWORD> <FILE>`
+* Upload a file or directory: `transfer <FILE|DIRECTORY>`
+* Automatically encrypt a file or directory using a default password while uploading: `transfer -e <FILE|DIRECTORY>`
+* Automatically encrypt a file or directory using a provided password while uploading: `transfer -e -p <PASSWORD> <FILE|DIRECTORY>`
 * Download a file: `transfer <URL>`
 * Automatically decrypt a file using a default password while downloading: `transfer -d <URL>`
 * Automatically decrypt a file using a provided password while downloading: `transfer -d -p <password> <URL>`
