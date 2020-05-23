@@ -1,8 +1,8 @@
 # transfer
 
-A bash script for uploading and downloading from <https://transfer.sh/>.
+A bash script for uploading and downloading from <https://transfer.sh/> and <https://0x0.st>.
 
-More sites, such as <0x0.st>, to come soon.
+Submit an issue for support for similar sites.
 
 ## Features
 
@@ -46,11 +46,11 @@ Alternatively, you can just call the `transfer.sh` script directly instead of do
 * Automatically decrypt a file using a provided password while downloading: `transfer -d -p <password> <URL>`
 * Decrypt file with default password: `transfer -d <FILE>`
 * Decrypt file with a provided password `transfer -d -p <password> <FILE>`
+* Do all of the above but upload to <https://0x0.st> instead: `transfer -s 0x0.st <everything else>`
 
 ## Unimplemented features
 
 * Automatically copy urls to clipboard (`-c flag`, will add xclip as a dependency)
 * Specify maximum number of downloads
 * Specify maximum life of url
-* add other sites
 * cronjob for deleting expired urls from `~/.transfer_history`

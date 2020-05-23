@@ -26,7 +26,8 @@ function usage ()
     -d|decrypt              Decrypt while downloading or decrypt file
     -e|encrypt              Encrypt while uploading
     -h|help                 Display this message
-    -p|password <PASSWORD>  Supply a password for encryption or decryption"
+    -p|password <PASSWORD>  Supply a password for encryption or decryption
+    -s|site <SITE>          Site to upload to. OPTIONS: [transfer.sh (default) | 0x0.st]"
 
 }
 
@@ -38,7 +39,7 @@ function usage ()
 # TODO: add a max days option. Just have a default MAX=14 variable and pass it when uploading
 function parse_args() {
     local opt OPTIND
-    while getopts "dehp:" opt; do
+    while getopts "dehp:s:" opt; do
         case $opt in
 
             d) d=true;;
@@ -48,6 +49,8 @@ function parse_args() {
             h) usage; exit 0;;
 
             p) PASSWORD=$OPTARG; echo "Using provided password instead of default" >&2;;
+
+            s) SITE=$OPTARG; echo "Uploading to $SITE instead of the default." >&2;;
 
             * ) echo -e "\n  Option does not exist : OPTARG\n"
                 usage; exit 1;;
@@ -83,6 +86,9 @@ function encrypt_and_upload_dir() {
         transfer.sh)
             tar -zcvO $INPUT | gpg --batch --passphrase $PASSWORD --symmetric -o- | curl -X PUT --upload-file "-" "https://transfer.sh/$(basename $INPUT).tar.gz" --progress-bar -w " $(date +%c)\n"| tee -a $HOME/.transfer_history
             ;;
+        0x0.st)
+            tar -zcvO $INPUT | gpg --batch --passphrase $PASSWORD --symmetric -o- | curl -F "file=@-;type=application/gzip" https://0x0.st --progress-bar -w " $(date +%c)\n"| tee -a $HOME/.transfer_history
+            ;;
         *)
             echo "$SITE not supported." >&2
             exit 1
@@ -94,6 +100,9 @@ function upload_dir() {
     case $SITE in
         transfer.sh)
             tar -zcvO $INPUT | curl -X PUT --upload-file "-" "https://transfer.sh/$(basename $INPUT).tar.gz" --progress-bar -w " $(date +%c)\n"| tee -a $HOME/.transfer_history
+            ;;
+        0x0.st)
+            tar -zcvO $INPUT | curl -F "file=@-;type=application/gzip" https://0x0.st --progress-bar -w " $(date +%c)\n"| tee -a $HOME/.transfer_history
             ;;
         *)
             echo "$SITE not supported." >&2
@@ -115,6 +124,9 @@ function encrypt_and_upload_file() {
         transfer.sh)
             gpg --batch --passphrase $PASSWORD --symmetric -o- $INPUT | curl -X PUT --upload-file "-" "https://transfer.sh/$(basename $INPUT)" --progress-bar -w " $(date +%c)\n"| tee -a $HOME/.transfer_history
             ;;
+        0x0.st)
+            gpg --batch --passphrase $PASSWORD --symmetric -o- $INPUT | curl -F "file=@-;type=$(file -b --mime-type $INPUT)" https://0x0.st --progress-bar -w " $(date +%c)\n"| tee -a $HOME/.transfer_history
+            ;;
         *)
             echo "$SITE not supported." >&2
             exit 1
@@ -126,6 +138,9 @@ function upload_file() {
     case $SITE in
         transfer.sh)
             curl --upload-file $INPUT "https://transfer.sh/$(basename $INPUT)" --progress-bar -w " $(date +%c)\n"| tee -a $HOME/.transfer_history
+            ;;
+        0x0.st)
+            curl -F "file=@$INPUT" https://0x0.st --progress-bar -w " $(date +%c)\n"| tee -a $HOME/.transfer_history
             ;;
         *)
             echo "$SITE not supported." >&2
