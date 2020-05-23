@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
 # www.jrodal.dev
 
-
 PASSWORD="$(pass transfer 2>/dev/null)" || { PASSWORD="6NR2spUqe%vMqA#9G#ySq"; echo "pass command failed - setting $PASSWORD as default password."; }
 SITE="transfer.sh"
 
@@ -172,4 +171,3 @@ function dir_mode() {
 }
 
 main $@
-
